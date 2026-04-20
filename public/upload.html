@@ -2,32 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>BA Automation Suitability Agent</title>
+  <title>Upload Process</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- 
+  <div class="container">
+    <h2>Upload AS‑IS Process Document</h2>
 
-<div class="container">
-  <h1>Automation Suitability Agent</h1>
+    <form id="processForm">
+      <label>Process Summary</label>
+      <textarea name="process_summary" required></textarea>
 
-  <form id="processForm">
-    <label>Process Summary</label>
-    <textarea name="process_summary"
-      placeholder="Briefly describe the business process"
-      required></textarea>
+      <label>Upload Document</label>
+      <input type="file" name="process_file" />
 
-    <label>Upload AS‑IS Document (Optional)</label>
-    <input type="file"
-      name="process_file"
-      accept=".pdf,.docx,.png,.jpg,.jpeg" />
+      <button type="submit">Analyze</button>
+    </form>
 
-    <button type="submit">Analyze</button>
-  </form>
+    <pre id="output"></pre>
+  </div>
 
-  <pre id="output"></pre>
-</div>
-<script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>

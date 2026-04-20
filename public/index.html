@@ -4,25 +4,14 @@
   <meta charset="UTF-8" />
   <title>Automation Suitability Agent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
   <div class="container">
-
     <h1>Automation Suitability Agent</h1>
-    <p class="subtitle">
-      Decision-support assistant for Business Analysts to identify the right automation tool,
-      effort, and skills.
-    </p>
 
     <div class="grid">
-
-      <!-- Left: Inputs -->
       <div class="card">
-        <h3>Process Details</h3>
-
         <label>Process Name</label>
         <input id="processName" />
 
@@ -32,7 +21,7 @@
         <label>Applications Involved</label>
         <div id="applicationsSelect" class="multi-select"></div>
 
-        <label>OCR / Document Processing</label>
+        <label>OCR Required</label>
         <select id="ocrRequired">
           <option value="yes">Yes</option>
           <option value="no">No</option>
@@ -40,7 +29,7 @@
 
         <label>Decision Nature</label>
         <select id="decisionNature">
-          <option value="rule_based">Fully Rule-based</option>
+          <option value="rule_based">Rule-based</option>
           <option value="mostly_rule_based">Mostly Rule-based</option>
           <option value="judgment_based">Judgment-based</option>
         </select>
@@ -52,62 +41,26 @@
           <option value="high">High</option>
         </select>
 
-        <label>No. of Resources</label>
-        <input type="number" id="resources" value="1" />
+        <label>Number of Resources</label>
+        <input type="number" id="resources" value="1"/>
 
         <label>Available Skills</label>
         <div id="skillsSelect" class="multi-select"></div>
 
         <button id="analyzeBtn">Analyze Process</button>
-        <div id="loading" class="loading" style="display:none;">
-          Analyzing process… Agent is evaluating options.
-        </div>
       </div>
 
-      <!-- Right: Document Upload Placeholder -->
-      <div class="card">
-        <h3>AS-IS Process Documentation</h3>
-        <div class="upload-box">
-          <strong>Upload coming soon</strong>
-          <small>PDF, DOCX, Images (Process flows)</small>
-          <small>Will enable deeper analysis</small>
-        </div>
-      </div>
-      
-    </div>
-
-    <!-- Results -->
-    <div id="results" class="results">
-      <h2>Agent Recommendation</h2>
-
-      <div class="result-grid">
-        <div class="card">
-          <div class="highlight" id="primaryTool"></div>
-          <small>Primary Tool</small>
-        </div>
-
-        <div class="card">
-          <div class="highlight" id="secondaryTool"></div>
-          <small>Secondary Tool</small>
-        </div>
-
-        <div class="card">
-          <div class="highlight" id="timeline"></div>
-          <small>Estimated Timeline</small>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Required Skills</h3>
-        <div id="requiredSkills"></div>
-      </div>
-
-      <div class="card">
-        <h3>Agent Reasoning</h3>
+      <div class="card results">
+        <h3>Agent Recommendation</h3>
+        <p><b>Primary Tool:</b> <span id="primaryTool"></span></p>
+        <p><b>Secondary Tool:</b> <span id="secondaryTool"></span></p>
+        <p><b>Timeline:</b> <span id="timeline"></span></p>
+        <p><b>Required Skills:</b></p>
+        <ul id="requiredSkills"></ul>
+        <p><b>Justification:</b></p>
         <p id="comparison"></p>
       </div>
     </div>
-
   </div>
 
   <script src="multiselect.js"></script>
