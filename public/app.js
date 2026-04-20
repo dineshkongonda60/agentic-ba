@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("processForm");
   const output = document.getElementById("output");
 
-  if (!form) {
-    console.error("processForm not found");
+  // ✅ Guard clause (this is the key fix)
+  if (!form || !output) {
     return;
   }
 
