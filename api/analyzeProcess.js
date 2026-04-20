@@ -107,6 +107,7 @@ OCR Required: ${input.ocrRequired || "Unknown"}
 Decision Nature: ${input.decisionNature || "Unknown"}
 Volume: ${input.volume || "Unknown"}
 Resources: ${input.resources || "Unknown"}
+Available Skills: ${(input.skills || []).join(", ") || "Not specified"}
 
 AS-IS Process Text:
 ${extractedText || "No document provided"}
@@ -124,7 +125,7 @@ ${extractedText || "No document provided"}
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o-mini",
           temperature: 0,
           messages: [
             { role: "system", content: systemPrompt },
