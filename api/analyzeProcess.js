@@ -77,6 +77,25 @@ STRICT OUTPUT RULES:
 2. DO NOT use markdown, backticks, or code blocks.
 3. DO NOT include explanations or commentary.
 4. Output must be valid JSON parseable by JSON.parse().
+
+
+REQUIRED OUTPUT JSON SCHEMA (MANDATORY):
+{
+  "primaryTool": "string",
+  "secondaryTool": "string",
+  "timeline": "string (e.g. 4–6 weeks)",
+  "requiredSkills": ["string", "string"],
+  "justification": "string"
+}
+
+FIELD DEFINITIONS:
+- primaryTool: Main automation technology best suited (e.g. RPA, IDP, GenAI)
+- secondaryTool: Supporting or complementary technology
+- timeline: Estimated delivery timeline
+- requiredSkills: Key skills required
+- justification: Short business & technical reasoning
+
+Return EXACTLY this structure.
 `;
 
     const userPrompt = `
