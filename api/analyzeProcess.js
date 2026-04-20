@@ -89,7 +89,7 @@ REQUIRED OUTPUT JSON SCHEMA (MANDATORY):
 }
 
 FIELD DEFINITIONS:
-- primaryTool: Main automation technology best suited (e.g. RPA, IDP, GenAI)
+- primaryTool: Main automation technology best suited (e.g. Automation Anywhere, UiPath, Python, Blue Prism, Work fusion, Pega)
 - secondaryTool: Supporting or complementary technology
 - timeline: Estimated delivery timeline
 - requiredSkills: Key skills required
