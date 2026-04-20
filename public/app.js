@@ -4,6 +4,26 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ======================================================
      INDEX.HTML – Button-based flow (JSON)
      ====================================================== */
+     
+// ✅ Initialize multi-selects
+const applicationsMS = createMultiSelect("applicationsSelect", [
+  "SAP",
+  "Oracle",
+  "Email",
+  "Excel",
+  "SharePoint",
+  "Web Portal"
+]);
+
+const skillsMS = createMultiSelect("skillsSelect", [
+  "Automation Anywhere",
+  "UiPath",
+  "Python",
+  "SAP Integration",
+  "Document Automation",
+  "AI / ML"
+]);
+
 
   const analyzeBtn = document.getElementById("analyzeBtn");
 
@@ -60,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /* ---------- Render results ---------- */
-
+        document.querySelector(".results").style.display = "block";
         document.getElementById("primaryTool").textContent =
           data.primaryTool || "N/A";
 
@@ -130,11 +150,14 @@ document.addEventListener("DOMContentLoaded", () => {
      Helper Functions
      ====================================================== */
 
-  function getSelectedValues(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return [];
-
-    return Array.from(container.querySelectorAll(".selected"))
-      .map(el => el.textContent.trim());
+  
+function getSelectedValues(containerId) {
+  if (containerId === "applicationsSelect") {
+    return applicationsMS.getSelected();
   }
+  if (containerId === "skillsSelect") {
+    return skillsMS.getSelected();
+  }
+  return [];
+}
 });
