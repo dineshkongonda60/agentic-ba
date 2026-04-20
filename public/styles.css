@@ -1,0 +1,210 @@
+body {
+  font-family: Inter, Arial, sans-serif;
+  background: #080a12;
+  color: #d5d8e0;
+  padding: 40px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+h1 {
+  color: #4cc9f0;
+}
+
+.subtitle {
+  opacity: 0.75;
+  margin-bottom: 30px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 30px;
+}
+
+label {
+  margin-top: 16px;
+  display: block;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  border-radius: 8px;
+}
+
+button {
+  margin-top: 30px;
+  padding: 14px 30px;
+  background: #00d4ff;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #36f1ff;
+}
+
+/* Glass Multi Select */
+.multi-select {
+  position: relative;
+  user-select: none;
+}
+
+.selected-items {
+  min-height: 44px;
+  padding: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.placeholder {
+  opacity: 0.6;
+}
+
+.chip {
+  background: rgba(76, 201, 240, 0.25);
+  border: 1px solid rgba(76, 201, 240, 0.6);
+  border-radius: 18px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.chip span {
+  margin-left: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  width: 100%;
+  background: rgba(14,22,37,0.95);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px);
+  border-radius: 12px;
+  z-index: 20;
+  padding: 10px;
+}
+
+.multi-select.open .dropdown {
+  display: block;
+}
+
+.dropdown input {
+  margin-bottom: 8px;
+}
+
+.option {
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: rgba(76,201,240,0.2);
+}
+
+.option.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Results */
+.results {
+  display: none;
+  margin-top: 40px;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.highlight {
+  font-size: 22px;
+  font-weight: bold;
+  color: #4cc9f0;
+}
+
+.loading {
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* ===========================
+   Glass select (closed state)
+   =========================== */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+
+  color: #ffffff;
+  padding: 10px 36px 10px 12px;
+  cursor: pointer;
+
+  /* Dropdown arrow */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #4cc9f0 50%),
+    linear-gradient(135deg, #4cc9f0 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) center,
+    calc(100% - 15px) center;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* Focus glow */
+select:focus {
+  outline: none;
+  border-color: #4cc9f0;
+  box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+}
+
+/* ===========================
+   Dropdown list (open menu)
+   =========================== */
+select option {
+  background-color: #0e1625;   /* dark background */
+  color: #ffffff;              /* white text */
+}
+
+/* Disabled options (safety) */
+select option:disabled {
+  color: rgba(255,255,255,0.4);
+}
