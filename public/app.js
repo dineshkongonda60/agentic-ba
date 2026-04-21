@@ -1,30 +1,43 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ app.js loaded");
 
+  let applicationsMS = null;
+  let skillsMS = null;
+
   /* ======================================================
-     INDEX.HTML – Button-based flow (JSON)
+     INDEX.HTML ONLY – Initialize multi-selects safely
      ====================================================== */
-     
-// ✅ Initialize multi-selects
-const applicationsMS = createMultiSelect("applicationsSelect", [
-  "SAP",
-  "Oracle",
-  "Email",
-  "Excel",
-  "SharePoint",
-  "Web Portal"
-]);
+  if (
+    typeof createMultiSelect === "function" &&
+    document.getElementById("applicationsSelect") &&
+    document.getElementById("skillsSelect")
+  ) {
+    console.log("✅ Initializing multi-select components");
 
-const skillsMS = createMultiSelect("skillsSelect", [
-  "Automation Anywhere",
-  "UiPath",
-  "Python",
-  "SAP Integration",
-  "Document Automation",
-  "AI / ML"
-]);
+    applicationsMS = createMultiSelect("applicationsSelect", [
+      "SAP",
+      "Oracle",
+      "Email",
+      "Excel",
+      "SharePoint",
+      "Web Portal"
+    ]);
 
+    skillsMS = createMultiSelect("skillsSelect", [
+      "Automation Anywhere",
+      "UiPath",
+      "Python",
+      "SAP Integration",
+      "Document Automation",
+      "AI / ML"
+    ]);
+  } else {
+    console.log("ℹ️ Multi-select not required on this page");
+  }
 
+  /* ======================================================
+     INDEX.HTML – Analyze button logic
+     ====================================================== */
   const analyzeBtn = document.getElementById("analyzeBtn");
 
   if (analyzeBtn) {
@@ -41,54 +54,36 @@ const skillsMS = createMultiSelect("skillsSelect", [
         decisionNature: document.getElementById("decisionNature")?.value || "",
         volume: document.getElementById("volume")?.value || "",
         resources: document.getElementById("resources")?.value || "",
-        applications: getSelectedValues("applicationsSelect"),
-        skills: getSelectedValues("skillsSelect")
+        applications: applicationsMS ? applicationsMS.getSelected() : [],
+        skills: skillsMS ? skillsMS.getSelected() : []
       };
 
-      console.log("📦 Payload to be sent:", payload);
+      console.log("📦 Payload:", payload);
 
       try {
-        console.log("🚀 Sending JSON to /api/analyzeProcess");
-
         const res = await fetch("/api/analyzeProcess", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        console.log("📡 Response status:", res.status);
+        const text = await res.text();
+        console.log("📄 Raw response:", text);
 
-        const responseText = await res.text();
-        console.log("📄 Raw response text:", responseText);
+        const data = JSON.parse(text);
 
-        let data;
-        try {
-          data = JSON.parse(responseText);
-        } catch (err) {
-          console.error("❌ JSON parse error:", err);
-          alert("Backend returned invalid JSON. Check logs.");
-          return;
-        }
+        // ✅ Show results
+        const results = document.querySelector(".results");
+        if (results) results.style.display = "block";
 
-        console.log("✅ Parsed API response:", data);
-
-        if (data.error) {
-          alert(`❌ ${data.details || data.error}`);
-          return;
-        }
-
-        /* ---------- Render results ---------- */
-        document.querySelector(".results").style.display = "block";
         document.getElementById("primaryTool").textContent =
           data.primaryTool || "N/A";
-
         document.getElementById("secondaryTool").textContent =
           data.secondaryTool || "N/A";
-
         document.getElementById("timeline").textContent =
           data.timeline || "N/A";
+        document.getElementById("comparison").textContent =
+          data.justification || "No justification provided";
 
         const skillsList = document.getElementById("requiredSkills");
         if (skillsList) {
@@ -100,20 +95,20 @@ const skillsMS = createMultiSelect("skillsSelect", [
           });
         }
 
-        document.getElementById("comparison").textContent =
-          data.justification || "No justification provided";
+        // ✅ Always-visible debug fallback
+        const raw = document.getElementById("agentRawOutput");
+        if (raw) raw.textContent = JSON.stringify(data, null, 2);
 
       } catch (err) {
-        console.error("❌ Index flow error:", err);
-        alert("❌ Failed to analyze process. See console for details.");
+        console.error("❌ Analyze error:", err);
+        alert("❌ Failed to analyze process");
       }
     });
   }
 
   /* ======================================================
-     UPLOAD.HTML – Form-based flow (FormData)
+     UPLOAD.HTML – Form-based logic (NO multiselect)
      ====================================================== */
-
   const uploadForm = document.getElementById("processForm");
   const uploadOutput = document.getElementById("output");
 
@@ -122,42 +117,20 @@ const skillsMS = createMultiSelect("skillsSelect", [
 
     uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      console.log("✅ Upload form submitted");
 
       const formData = new FormData(uploadForm);
 
       try {
-        console.log("🚀 Sending FormData to /api/analyzeProcess");
-
         const res = await fetch("/api/analyzeProcess", {
           method: "POST",
           body: formData
         });
 
-        const responseText = await res.text();
-        console.log("📄 Raw response text:", responseText);
-
-        uploadOutput.textContent = responseText;
-
+        uploadOutput.textContent = await res.text();
       } catch (err) {
-        console.error("❌ Upload flow error:", err);
-        uploadOutput.textContent = "❌ Failed to analyze process";
+        console.error(err);
+        uploadOutput.textContent = "❌ Upload analysis failed";
       }
     });
   }
-
-  /* ======================================================
-     Helper Functions
-     ====================================================== */
-
-  
-function getSelectedValues(containerId) {
-  if (containerId === "applicationsSelect") {
-    return applicationsMS.getSelected();
-  }
-  if (containerId === "skillsSelect") {
-    return skillsMS.getSelected();
-  }
-  return [];
-}
 });
