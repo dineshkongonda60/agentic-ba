@@ -20,43 +20,64 @@ export default async function handler(req, res) {
   try {
     const contentType = req.headers["content-type"] || "";
 
-    /* -------------------------
-       Parse multipart OR JSON
-    -------------------------- */
+    /* =====================================================
+       1️⃣ Parse multipart (upload.html) OR JSON (index.html)
+       ===================================================== */
     if (contentType.includes("multipart/form-data")) {
-  const form = formidable({ multiples: false });
+      const form = formidable({ multiples: false });
 
-  const { fields, files } = await new Promise((resolve, reject) => {
-    form.parse(req, (err, fields, files) => {
-      if (err) reject(err);
-      resolve({ fields, files });
-    });
-  });
+      const { fields, files } = await new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) reject(err);
+          resolve({ fields, files });
+        });
+      });
 
-  input = fields;
+      input = normalizeFields(fields);
 
-  if (files.process_file) {
-    const file = files.process_file;
-    const ext = file.originalFilename.split(".").pop().toLowerCase();
+      /* -------------------------
+         File extraction (safe)
+      -------------------------- */
+      if (files.process_file) {
+        let file = files.process_file;
+        if (Array.isArray(file)) file = file[0];
 
-    try {
-      if (ext === "docx") {
-        const result = await mammoth.extractRawText({ path: file.filepath });
-        extractedText = result.value;
-      } else if (ext === "pdf") {
-        const buffer = fs.readFileSync(file.filepath);
-        const result = await pdfParse(buffer);
-        extractedText = result.text;
+        const filename =
+          file.originalFilename ||
+          file.name ||
+          file.newFilename ||
+          "";
+
+        const ext = filename.includes(".")
+          ? filename.split(".").pop().toLowerCase()
+          : "";
+
+        try {
+          if (ext === "docx") {
+            const result = await mammoth.extractRawText({
+              path: file.filepath
+            });
+            extractedText = result.value;
+          } else if (ext === "pdf") {
+            const buffer = fs.readFileSync(file.filepath);
+            const result = await pdfParse(buffer);
+            extractedText = result.text;
+          } else {
+            extractedText = "Uploaded file type not supported for extraction.";
+          }
+        } catch (err) {
+          console.error("File extraction error:", err);
+          extractedText = "Failed to extract document content.";
+        }
       }
-    } catch {
-      extractedText = "Failed to extract document content";
+    } else {
+      // ✅ JSON flow (index.html)
+      input = JSON.parse(await getRawBody(req));
     }
-  }
-}
 
-    /* -------------------------
-       Normalize extracted text
-    -------------------------- */
+    /* =====================================================
+       2️⃣ Normalize extracted text
+       ===================================================== */
     extractedText = extractedText
       .split("\n")
       .map(l => l.trim())
@@ -64,9 +85,9 @@ export default async function handler(req, res) {
       .slice(0, 3000)
       .join("\n");
 
-    /* -------------------------
-       Prompts
-    -------------------------- */
+    /* =====================================================
+       3️⃣ Prompts
+       ===================================================== */
     const systemPrompt = `
 You are an Automation Suitability and Estimation Agent for Business Analysts.
 
@@ -76,22 +97,14 @@ STRICT OUTPUT RULES:
 3. DO NOT include explanations or commentary.
 4. Output must be valid JSON parseable by JSON.parse().
 
-
-REQUIRED OUTPUT JSON SCHEMA (MANDATORY):
+REQUIRED OUTPUT JSON SCHEMA:
 {
   "primaryTool": "string",
   "secondaryTool": "string",
-  "timeline": "string (e.g. 4–6 weeks)",
-  "requiredSkills": ["string", "string"],
+  "timeline": "string",
+  "requiredSkills": ["string"],
   "justification": "string"
 }
-
-FIELD DEFINITIONS:
-- primaryTool: Main automation technology best suited (e.g. Automation Anywhere, UiPath, Python, Blue Prism, Work fusion, Pega)
-- secondaryTool: Supporting or complementary technology
-- timeline: Estimated delivery timeline
-- requiredSkills: Key skills required
-- justification: Short business & technical reasoning
 
 Return EXACTLY this structure.
 `;
@@ -111,9 +124,9 @@ AS-IS Process Text:
 ${extractedText || "No document provided"}
 `;
 
-    /* -------------------------
-       OpenAI Call
-    -------------------------- */
+    /* =====================================================
+       4️⃣ OpenAI Call
+       ===================================================== */
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -140,9 +153,9 @@ ${extractedText || "No document provided"}
       throw new Error("Empty OpenAI response");
     }
 
-    /* -------------------------
-       Clean + Parse JSON safely
-    -------------------------- */
+    /* =====================================================
+       5️⃣ Clean markdown & parse JSON safely
+       ===================================================== */
     const cleaned = content
       .replace(/```json\s*/i, "")
       .replace(/```/g, "")
@@ -170,7 +183,11 @@ ${extractedText || "No document provided"}
   }
 }
 
-/* Utility: raw body reader */
+/* =====================================================
+   Utils
+   ===================================================== */
+
+// Read raw body for JSON requests
 function getRawBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -178,4 +195,20 @@ function getRawBody(req) {
     req.on("end", () => resolve(body));
     req.on("error", reject);
   });
+}
+
+// Normalize formidable fields (string | array)
+function normalizeFields(fields) {
+  const normalized = {};
+  for (const key in fields) {
+    normalized[key] = Array.isArray(fields[key])
+      ? fields[key]
+      : fields[key]?.toString();
+  }
+
+  if (typeof normalized.skills === "string") {
+    normalized.skills = normalized.skills.split(",").map(s => s.trim());
+  }
+
+  return normalized;
 }
