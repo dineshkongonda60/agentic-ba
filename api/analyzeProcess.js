@@ -24,37 +24,35 @@ export default async function handler(req, res) {
        Parse multipart OR JSON
     -------------------------- */
     if (contentType.includes("multipart/form-data")) {
-      const form = new formidable.IncomingForm();
+  const form = formidable({ multiples: false });
 
-      const { fields, files } = await new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
-          if (err) reject(err);
-          resolve({ fields, files });
-        });
-      });
+  const { fields, files } = await new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) reject(err);
+      resolve({ fields, files });
+    });
+  });
 
-      input = fields;
+  input = fields;
 
-      if (files.process_file) {
-        const file = files.process_file;
-        const ext = file.originalFilename.split(".").pop().toLowerCase();
+  if (files.process_file) {
+    const file = files.process_file;
+    const ext = file.originalFilename.split(".").pop().toLowerCase();
 
-        try {
-          if (ext === "docx") {
-            const result = await mammoth.extractRawText({ path: file.filepath });
-            extractedText = result.value;
-          } else if (ext === "pdf") {
-            const buffer = fs.readFileSync(file.filepath);
-            const result = await pdfParse(buffer);
-            extractedText = result.text;
-          }
-        } catch {
-          extractedText = "Failed to extract document text";
-        }
+    try {
+      if (ext === "docx") {
+        const result = await mammoth.extractRawText({ path: file.filepath });
+        extractedText = result.value;
+      } else if (ext === "pdf") {
+        const buffer = fs.readFileSync(file.filepath);
+        const result = await pdfParse(buffer);
+        extractedText = result.text;
       }
-    } else {
-      input = JSON.parse(await getRawBody(req));
+    } catch {
+      extractedText = "Failed to extract document content";
     }
+  }
+}
 
     /* -------------------------
        Normalize extracted text
